@@ -33,7 +33,7 @@ function App() {
           <Collapse isOpen={isOpen} navbar>
             <Nav className="mr-auto" navbar>
               <NavItem>
-                <NavbarBrand href="/empleados">Empleado</NavbarBrand>
+                <NavbarBrand href="/empleados">Empleados</NavbarBrand>
               </NavItem>
               <NavItem>
                 <NavbarBrand href="/clientes">Clientes</NavbarBrand>
