@@ -46,13 +46,13 @@ function App() {
         </Navbar>
 
         <Switch>
-          <Route path="/clientes" component={Clientes}>
+          <Route path="/clientes">
             <Clientes />
           </Route>
-          <Route path="/servicios" component={Servicios}>
+          <Route path="/servicios">
             <Servicios />
           </Route>
-          <Route path="/empleados" component={Empleados}>
+          <Route path="/empleados">
             <Empleados />
           </Route>
         </Switch>
