@@ -27,7 +27,7 @@ function App() {
   const toggle = () => setIsOpen(!isOpen);
    
   return (
-    <HashRouter>
+    <Router>
       <div className="App">
         <Navbar color="primary" dark expand="md">
           <NavbarToggler onClick={toggle} />
@@ -47,18 +47,12 @@ function App() {
         </Navbar>
 
         <Switch>
-          <Route path="/clientes">
-            <Clientes />
-          </Route>
-          <Route path="/servicios">
-            <Servicios />
-          </Route>
-          <Route path="/empleados">
-            <Empleados />
-          </Route>
+          <Route path="/clientes" component={Clientes}></Route>
+          <Route path="/servicios" component={Servicios}></Route>
+          <Route path="/empleados" component={Empleados}></Route>
         </Switch>
       </div>
-    </HashRouter>
+    </Router>
   );
 }
 
