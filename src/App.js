@@ -15,7 +15,7 @@ import {
   NavLink
 } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Contacto from './componentes/clientes';
+import Clientes from './componentes/clientes';
 import Servicios from './componentes/servicios';
 import Empleados from './componentes/empleados';
 
@@ -46,13 +46,13 @@ function App() {
         </Navbar>
 
         <Switch>
-          <Route path="/clientes">
-            <Contacto />
+          <Route path="/clientes" component={Clientes}>
+            <Clientes />
           </Route>
-          <Route path="/servicios">
+          <Route path="/servicios" component={Servicios}>
             <Servicios />
           </Route>
-          <Route path="/empleados">
+          <Route path="/empleados" component={Empleados}>
             <Empleados />
           </Route>
         </Switch>
