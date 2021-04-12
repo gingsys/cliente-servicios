@@ -3,6 +3,7 @@ import{
   BrowserRouter as Router,
   Switch,
   Route,
+  HashRouter,
   Link
 } from 'react-router-dom';
 import {
@@ -26,7 +27,7 @@ function App() {
   const toggle = () => setIsOpen(!isOpen);
    
   return (
-    <Router>
+    <HashRouter>
       <div className="App">
         <Navbar color="primary" dark expand="md">
           <NavbarToggler onClick={toggle} />
@@ -57,7 +58,7 @@ function App() {
           </Route>
         </Switch>
       </div>
-    </Router>
+    </HashRouter>
   );
 }
 
