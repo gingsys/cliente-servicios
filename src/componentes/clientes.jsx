@@ -5,21 +5,21 @@ import { Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 
 const Clientes = () => {
 
-    const baseUrl = "https://localhost:44350/api/clientes";
-    const distUrl = "https://localhost:44350/api/distritos";
+    const baseUrl = "http://api.pyrmultimediasac.com/api/clientes";
+    const distUrl = "http://api.pyrmultimediasac.com/api/distritos/listarDistritos";
     const [clientes, setClientes] = useState([]);
     const [distritos, setDistritos] = useState([]);
     const [modalInsertar, setModalInsertar] = useState(false);
     const [modalEditar, setModalEditar] = useState(false);
     const [modalEliminar, setModalEliminar] = useState(false);
     const [clienteSeleccionado, setClienteSeleccionado] = useState({
-        codCli: "",
-        nomCli: "",
-        dniRuc: "",
-        telfCli: "",
-        codDis: "",
-        nomDis: "",
-        dirCli: "",
+        cod_cli: "",
+        nom_cli: "",
+        dni_ruc: "",
+        telf_cli: "",
+        cod_dis: "",
+        nom_dis: "",
+        dir_cli: "",
         email: ""
     })
 
@@ -44,7 +44,7 @@ const Clientes = () => {
     }
 
     const peticionGet = async () => {
-        await axios.get(baseUrl)
+        await axios.get(baseUrl+"/listarClientes")
             .then(response => {
                 setClientes(response.data);
             }).catch(error => {
@@ -62,8 +62,8 @@ const Clientes = () => {
     }
 
     const peticionPost = async () => {
-        delete clienteSeleccionado.codCli;
-        await axios.post(baseUrl, clienteSeleccionado)
+        delete clienteSeleccionado.cod_cli;
+        await axios.post(baseUrl+"/registrarCliente", clienteSeleccionado)
             .then(response => {
                 setClientes(clientes.concat(response.data));
                 peticionGet();
@@ -75,19 +75,19 @@ const Clientes = () => {
 
     const peticionPut = async () => {
         delete clienteSeleccionado.eliminado;
-        delete clienteSeleccionado.nomDis
-        await axios.put(baseUrl + "/" + clienteSeleccionado.codCli, clienteSeleccionado)
+        delete clienteSeleccionado.nom_dis
+        await axios.put(baseUrl + "/actualizarCliente", clienteSeleccionado)
             .then(response => {
                 var respuesta = response.data;
                 var dataAuxiliar = clientes;
                 dataAuxiliar.map(cliente => {
-                    if (cliente.codCli === clienteSeleccionado.codCli) {
-                        cliente.cod = respuesta.codCli;
-                        cliente.nom = respuesta.nomCli;
-                        cliente.dniruc = respuesta.dniRuc;
-                        cliente.telf = respuesta.telfCli;
-                        cliente.dis = respuesta.codDis;
-                        cliente.dir = respuesta.dirCli;
+                    if (cliente.cod_cli === clienteSeleccionado.cod_cli) {
+                        cliente.cod_cli = respuesta.cod_Cli;
+                        cliente.nom_cli = respuesta.nom_cli;
+                        cliente.dni_ruc = respuesta.dni_ruc;
+                        cliente.telf_cli = respuesta.telf_cli;
+                        cliente.cod_dis = respuesta.cod_dis;
+                        cliente.dir_cli = respuesta.dir_cli;
                         cliente.email = respuesta.email;
                     }
                 })
@@ -99,9 +99,15 @@ const Clientes = () => {
     }
 
     const peticionDelete = async () => {
-        await axios.delete(baseUrl + "/" + clienteSeleccionado.codCli)
-            .then(response => {
-                setClientes(clientes.filter(clientes => clientes.codCli == response.data))
+        await axios.post(baseUrl + "/eliminarCliente",clienteSeleccionado)
+        .then(response => {
+            var respuesta = response.data;
+            var dataAuxiliar = clientes;
+            dataAuxiliar.map(cliente => {
+                if (cliente.codCli === clienteSeleccionado.cod_cli) {
+                    cliente.cod = respuesta.cod_Cli;
+                }
+            })
                 peticionGet();
                 abrirCerrarModalEliminar();
             }).catch(error => {
@@ -151,12 +157,12 @@ const Clientes = () => {
                         </thead>
                         <tbody>
                             {clientes.map(clientes => (
-                                <tr key={clientes.codCli}>
-                                    <td>{clientes.nomCli}</td>
-                                    <td>{clientes.dniRuc}</td>
-                                    <td>{clientes.telfCli}</td>
-                                    <td>{clientes.nomDis}</td>
-                                    <td>{clientes.dirCli}</td>
+                                <tr key={clientes.cod_cli}>
+                                    <td>{clientes.nom_cli}</td>
+                                    <td>{clientes.dni_ruc}</td>
+                                    <td>{clientes.telf_cli}</td>
+                                    <td>{clientes.nom_dis}</td>
+                                    <td>{clientes.dir_cli}</td>
                                     <td>{clientes.email}</td>
                                     <td>
                                         <button className="btn btn-primary" onClick={() => seleccionarCliente(clientes, "Editar")}>Actualizar</button>
@@ -175,28 +181,29 @@ const Clientes = () => {
                 <ModalBody>
                     <form>
                         <div className="mb-3">
-                            <label htmlFor="nomCli" className="form-label">Nombre</label>
-                            <input type="text" className="form-control" id="nomCli" name="nomCli" onChange={handleChange} />
+                            <label htmlFor="nom_cli" className="form-label">Nombre</label>
+                            <input type="text" className="form-control" id="nom_cli" name="nom_cli" onChange={handleChange} />
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="dniRuc" className="form-label">DNI/RUC</label>
-                            <input type="text" className="form-control" id="dniRuc" name="dniRuc" onChange={handleChange} />
+                            <label htmlFor="dni_ruc" className="form-label">DNI/RUC</label>
+                            <input type="text" className="form-control" id="dni_ruc" name="dni_ruc" onChange={handleChange} />
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="telfCli" className="form-label">Teléfono</label>
-                            <input type="text" className="form-control" id="telfCli" name="telfCli" onChange={handleChange} />
+                            <label htmlFor="telf_cli" className="form-label">Teléfono</label>
+                            <input type="text" className="form-control" id="telf_cli" name="telf_cli" onChange={handleChange} />
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="codDis" className="form-label">Distrito</label>
-                            <select className="form-control" id="codDis" name="codDis" onChange={handleChange}>
+                            <label htmlFor="cod_dis" className="form-label">Distrito</label>
+                            <select className="form-control" id="cod_dis" name="cod_dis" onChange={handleChange}>
+                                <option value="0">Seleccione</option>
                                 {distritos.map(distritos => (
-                                    <option key={distritos.codDis} value={distritos.codDis}>{distritos.nomDis}</option>
+                                    <option key={distritos.cod_dis} value={distritos.cod_dis}>{distritos.nom_dis}</option>
                                 ))}
                             </select>
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="dirCli" className="form-label">Dirección</label>
-                            <input type="text" className="form-control" id="dirCli" name="dirCli" onChange={handleChange} />
+                            <label htmlFor="dir_cli" className="form-label">Dirección</label>
+                            <input type="text" className="form-control" id="dir_cli" name="dir_cli" onChange={handleChange} />
                         </div>
                         <div className="mb-3">
                             <label htmlFor="email" className="form-label">Correo</label>
@@ -214,33 +221,33 @@ const Clientes = () => {
                 <ModalHeader>Editar Cliente</ModalHeader>
                 <ModalBody>
                     <form>
-                        <div className="mb-3">
-                            <label htmlFor="codCli" className="form-label">Código</label>
-                            <input type="text" className="form-control" id="codCli" name="codCli" readOnly value={clienteSeleccionado && clienteSeleccionado.codCli} />
+                        <div className="mb-3" hidden>
+                            <label htmlFor="cod_Cli" className="form-label">Código</label>
+                            <input type="text" className="form-control" id="cod_cli" name="cod_cli" readOnly value={clienteSeleccionado && clienteSeleccionado.cod_cli} />
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="nomCli" className="form-label">Nombre</label>
-                            <input type="text" className="form-control" id="nomCli" name="nomCli" onChange={handleChange} value={clienteSeleccionado && clienteSeleccionado.nomCli} />
+                            <label htmlFor="nom_cli" className="form-label">Nombre</label>
+                            <input type="text" className="form-control" id="nom_cli" name="nom_cli" onChange={handleChange} value={clienteSeleccionado && clienteSeleccionado.nom_cli} />
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="dniRuc" className="form-label">DNI/RUC</label>
-                            <input type="text" className="form-control" id="dniRuc" name="dniRuc" onChange={handleChange} value={clienteSeleccionado && clienteSeleccionado.dniRuc} />
+                            <label htmlFor="dni_ruc" className="form-label">DNI/RUC</label>
+                            <input type="text" className="form-control" id="dni_ruc" name="dni_ruc" onChange={handleChange} value={clienteSeleccionado && clienteSeleccionado.dni_ruc} />
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="telfCli" className="form-label">Teléfono</label>
-                            <input type="text" className="form-control" id="telfCli" name="telfCli" onChange={handleChange} value={clienteSeleccionado && clienteSeleccionado.telfCli} />
+                            <label htmlFor="telf_cli" className="form-label">Teléfono</label>
+                            <input type="text" className="form-control" id="telf_cli" name="telf_cli" onChange={handleChange} value={clienteSeleccionado && clienteSeleccionado.telf_cli} />
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="codDis" className="form-label">Distrito</label>
-                            <select className="form-control" id="codDis" name="codDis" onChange={handleChange} value={clienteSeleccionado && clienteSeleccionado.codDis} >
+                            <label htmlFor="cod_dis" className="form-label">Distrito</label>
+                            <select className="form-control" id="cod_dis" name="cod_dis" onChange={handleChange} value={clienteSeleccionado && clienteSeleccionado.cod_dis} >
                                 {distritos.map(distritos => (
-                                    <option key={distritos.codDis} value={distritos.codDis}>{distritos.nomDis}</option>
+                                    <option key={distritos.cod_dis} value={distritos.cod_dis}>{distritos.nom_dis}</option>
                                 ))}
                             </select>
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="dirCli" className="form-label">Dirección</label>
-                            <input type="text" className="form-control" id="dirCli" name="dirCli" onChange={handleChange} value={clienteSeleccionado && clienteSeleccionado.dirCli} />
+                            <label htmlFor="dir_cli" className="form-label">Dirección</label>
+                            <input type="text" className="form-control" id="dir_cli" name="dir_cli" onChange={handleChange} value={clienteSeleccionado && clienteSeleccionado.dir_cli} />
                         </div>
                         <div className="mb-3">
                             <label htmlFor="email" className="form-label">Correo</label>
@@ -256,7 +263,7 @@ const Clientes = () => {
 
             <Modal isOpen={modalEliminar}>
                 <ModalBody>
-                    Estás seguro que deseas eliminar al Cliente {clienteSeleccionado && clienteSeleccionado.nomCli}?
+                    Estás seguro que deseas eliminar al Cliente {clienteSeleccionado && clienteSeleccionado.nom_cli}?
                 </ModalBody>
                 <ModalFooter>
                     <button className="btn btn-danger" onClick={() => peticionDelete()}>Sí</button>

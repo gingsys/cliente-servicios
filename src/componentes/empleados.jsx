@@ -4,20 +4,20 @@ import {useState, useEffect} from 'react';
 import {Modal,ModalBody,ModalFooter,ModalHeader} from 'reactstrap';
 
 const Empleados = () =>{
-  const baseUrl = "https://localhost:44350/api/empleados";
-  const distUrl = "https://localhost:44350/api/distritos";
+  const baseUrl = "http://api.pyrmultimediasac.com/api/empleados";
+  const distUrl = "http://api.pyrmultimediasac.com/api/distritos/listarDistritos";
   const [empleado, setEmpleado] = useState([]);
   const [distritos, setDistritos] = useState([]);
   const [modalInsertar, setModalInsertar] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
   const [modalEliminar, setModalEliminar] = useState(false);
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState({
-    codEmp: "",
-    nomEmp: "",
+    cod_emp: "",
+    nom_emp: "",
     dni: "",
-    telfEmp: "",
-    codDis: "",
-    dirEmp: "",
+    telf_emp: "",
+    cod_dis: "",
+    dir_emp: "",
     email: ""
   })
 
@@ -42,7 +42,7 @@ const Empleados = () =>{
   }
 
   const peticionGet = async () => {
-    await axios.get(baseUrl)
+    await axios.get(baseUrl + "/listarEmpleados")
       .then(response => {
         setEmpleado(response.data);
       }).catch(error => {
@@ -60,8 +60,8 @@ const Empleados = () =>{
   }
 
   const peticionPost = async () => {
-    delete empleadoSeleccionado.codEmp;
-    await axios.post(baseUrl, empleadoSeleccionado)
+    delete empleadoSeleccionado.cod_emp;
+    await axios.post(baseUrl+"/registrarEmpleado", empleadoSeleccionado)
       .then(response => {
         setEmpleado(empleado.concat(response.data));
         peticionGet();
@@ -73,19 +73,19 @@ const Empleados = () =>{
 
   const peticionPut = async () => {
     delete empleadoSeleccionado.eliminado;
-    delete empleadoSeleccionado.nomDis
-    await axios.put(baseUrl + "/" + empleadoSeleccionado.codEmp, empleadoSeleccionado)
+    delete empleadoSeleccionado.nom_dis
+    await axios.put(baseUrl + "/actualizarEmpleado", empleadoSeleccionado)
       .then(response => {
         var respuesta = response.data;
         var dataAuxiliar = empleado;
         dataAuxiliar.map(empleado => {
-          if (empleado.codEmp === empleadoSeleccionado.codEmp) {
-            empleado.cod = respuesta.codEmp;
-            empleado.nom = respuesta.nomEmp;
+          if (empleado.cod_emp === empleadoSeleccionado.cod_emp) {
+            empleado.cod = respuesta.cod_emp;
+            empleado.nom = respuesta.nom_emp;
             empleado.dni = respuesta.dni;
-            empleado.telf = respuesta.telfEmp;
-            empleado.dis = respuesta.codDis;
-            empleado.dir = respuesta.dirEmp;
+            empleado.telf = respuesta.telf_emp;
+            empleado.dis = respuesta.cod_dis;
+            empleado.dir = respuesta.dir_emp;
             empleado.email = respuesta.email;
           }
         })
@@ -97,9 +97,15 @@ const Empleados = () =>{
   }
 
   const peticionDelete = async () => {
-    await axios.delete(baseUrl + "/" + empleadoSeleccionado.codEmp)
-      .then(response => {
-        setEmpleado(empleado.filter(empleado => empleado.codEmp == response.data))
+    await axios.post(baseUrl + "/eliminarEmpleado", empleadoSeleccionado)
+    .then(response => {
+      var respuesta = response.data;
+      var dataAuxiliar = empleado;
+      dataAuxiliar.map(empleado => {
+        if (empleado.cod_emp === empleadoSeleccionado.cod_emp) {
+          empleado.cod = respuesta.cod_emp;
+        }
+      })
         peticionGet();
         abrirCerrarModalEliminar();
       }).catch(error => {
@@ -149,12 +155,12 @@ const Empleados = () =>{
             </thead>
             <tbody>
               {empleado.map(empleado => (
-                <tr key={empleado.codEmp}>
-                  <td>{empleado.nomEmp}</td>
+                <tr key={empleado.cod_emp}>
+                  <td>{empleado.nom_emp}</td>
                   <td>{empleado.dni}</td>
-                  <td>{empleado.telfEmp}</td>
-                  <td>{empleado.nomDis}</td>
-                  <td>{empleado.dirEmp}</td>
+                  <td>{empleado.telf_emp}</td>
+                  <td>{empleado.nom_dis}</td>
+                  <td>{empleado.dir_emp}</td>
                   <td>{empleado.email}</td>
                   <td>
                     <button className="btn btn-primary" onClick={() => seleccionarEmpleado(empleado, "Editar")}>Actualizar</button>
@@ -173,28 +179,29 @@ const Empleados = () =>{
         <ModalBody>
           <form>
             <div className="mb-3">
-              <label htmlFor="nomEmp" className="form-label">Nombre y Apellidos</label>
-              <input type="text" className="form-control" id="nomEmp" name="nomEmp" onChange={handleChange} />
+              <label htmlFor="nom_emp" className="form-label">Nombre y Apellidos</label>
+              <input type="text" className="form-control" id="nom_emp" name="nom_emp" onChange={handleChange} />
             </div>
             <div className="mb-3">
               <label htmlFor="dni" className="form-label">Documento de Identidad</label>
               <input type="text" className="form-control" id="dni" name="dni" onChange={handleChange} />
             </div>
             <div className="mb-3">
-              <label htmlFor="telfEmp" className="form-label">Teléfono</label>
-              <input type="text" className="form-control" id="telfEmp" name="telfEmp" onChange={handleChange} />
+              <label htmlFor="telf_emp" className="form-label">Teléfono</label>
+              <input type="text" className="form-control" id="telf_emp" name="telf_emp" onChange={handleChange} />
             </div>
             <div className="mb-3">
-              <label htmlFor="codDis" className="form-label">Distrito</label>
-              <select className="form-control" id="codDis" name="codDis" onChange={handleChange}>
+              <label htmlFor="cod_dis" className="form-label">Distrito</label>
+              <select className="form-control" id="cod_dis" name="cod_dis" onChange={handleChange}>
+                <option value="0">Seleccione</option>
                 {distritos.map(distritos => (
-                  <option key={distritos.codDis} value={distritos.codDis}>{distritos.nomDis}</option>
+                  <option key={distritos.cod_dis} value={distritos.cod_dis}>{distritos.nom_dis}</option>
                 ))}
               </select>
             </div>
             <div className="mb-3">
-              <label htmlFor="dirEmp" className="form-label">Dirección</label>
-              <input type="text" className="form-control" id="dirEmp" name="dirEmp" onChange={handleChange} />
+              <label htmlFor="dir_emp" className="form-label">Dirección</label>
+              <input type="text" className="form-control" id="dir_emp" name="dir_emp" onChange={handleChange} />
             </div>
             <div className="mb-3">
               <label htmlFor="email" className="form-label">Correo</label>
@@ -212,33 +219,33 @@ const Empleados = () =>{
         <ModalHeader>Editar Empleado</ModalHeader>
         <ModalBody>
           <form>
-            <div className="mb-3">
-              <label htmlFor="codEmp" className="form-label">Código</label>
-              <input type="text" className="form-control" id="codEmp" name="codEmp" readOnly value={empleadoSeleccionado && empleadoSeleccionado.codEmp} />
+            <div className="mb-3" hidden>
+              <label htmlFor="cod_emp" className="form-label">Código</label>
+              <input type="text" className="form-control" id="cod_emp" name="cod_emp" readOnly value={empleadoSeleccionado && empleadoSeleccionado.cod_emp} />
             </div>
             <div className="mb-3">
-              <label htmlFor="nomEmp" className="form-label">Nombre y Apellidos</label>
-              <input type="text" className="form-control" id="nomEmp" name="nomEmp" onChange={handleChange} value={empleadoSeleccionado && empleadoSeleccionado.nomEmp} />
+              <label htmlFor="nom_emp" className="form-label">Nombre y Apellidos</label>
+              <input type="text" className="form-control" id="nom_emp" name="nom_emp" onChange={handleChange} value={empleadoSeleccionado && empleadoSeleccionado.nom_emp} />
             </div>
             <div className="mb-3">
               <label htmlFor="dni" className="form-label">Documento de Identidad</label>
               <input type="text" className="form-control" id="dni" name="dni" onChange={handleChange} value={empleadoSeleccionado && empleadoSeleccionado.dni} />
             </div>
             <div className="mb-3">
-              <label htmlFor="telfEmp" className="form-label">Teléfono</label>
-              <input type="text" className="form-control" id="telfEmp" name="telfEmp" onChange={handleChange} value={empleadoSeleccionado && empleadoSeleccionado.telfEmp} />
+              <label htmlFor="telf_emp" className="form-label">Teléfono</label>
+              <input type="text" className="form-control" id="telf_emp" name="telf_emp" onChange={handleChange} value={empleadoSeleccionado && empleadoSeleccionado.telf_emp} />
             </div>
             <div className="mb-3">
               <label htmlFor="codDis" className="form-label">Distrito</label>
-              <select className="form-control" id="codDis" name="codDis" onChange={handleChange} value={empleadoSeleccionado && empleadoSeleccionado.codDis} >
+              <select className="form-control" id="cod_dis" name="cod_dis" onChange={handleChange} value={empleadoSeleccionado && empleadoSeleccionado.cod_dis} >
                 {distritos.map(distritos => (
-                  <option key={distritos.codDis} value={distritos.codDis}>{distritos.nomDis}</option>
+                  <option key={distritos.cod_dis} value={distritos.cod_dis}>{distritos.nom_dis}</option>
                 ))}
               </select>
             </div>
             <div className="mb-3">
-              <label htmlFor="dirEmp" className="form-label">Dirección</label>
-              <input type="text" className="form-control" id="dirEmp" name="dirEmp" onChange={handleChange} value={empleadoSeleccionado && empleadoSeleccionado.dirEmp} />
+              <label htmlFor="dir_emp" className="form-label">Dirección</label>
+              <input type="text" className="form-control" id="dir_emp" name="dir_emp" onChange={handleChange} value={empleadoSeleccionado && empleadoSeleccionado.dir_emp} />
             </div>
             <div className="mb-3">
               <label htmlFor="email" className="form-label">Correo</label>
@@ -254,7 +261,7 @@ const Empleados = () =>{
 
       <Modal isOpen={modalEliminar}>
         <ModalBody>
-          Estás seguro que deseas eliminar al Empleado {empleadoSeleccionado && empleadoSeleccionado.nomEmp}?
+          Estás seguro que deseas eliminar al Empleado {empleadoSeleccionado && empleadoSeleccionado.nom_emp}?
                 </ModalBody>
         <ModalFooter>
           <button className="btn btn-danger" onClick={() => peticionDelete()}>Sí</button>

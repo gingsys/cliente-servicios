@@ -4,9 +4,9 @@ import {useState, useEffect} from 'react';
 import {Modal,ModalBody,ModalFooter,ModalHeader} from 'reactstrap';
 
 const Servicios = () =>{
-    const baseUrl = "https://localhost:44350/api/servicios";
-    const clieUrl = "https://localhost:44350/api/clientes";
-    const empUrl = "https://localhost:44350/api/empleados";
+    const baseUrl = "http://api.pyrmultimediasac.com/api/servicios";
+    const clieUrl = "http://api.pyrmultimediasac.com/api/clientes/listarClientes";
+    const empUrl = "http://api.pyrmultimediasac.com/api/empleados/listarEmpleados";
     const [servicios, setServicios] = useState([]);
     const [clientes, setClientes] = useState([]);
     const [empleados, setEmpleados] = useState([]);
@@ -14,13 +14,13 @@ const Servicios = () =>{
     const [modalEditar, setModalEditar] = useState(false);
     const [modalEliminar, setModalEliminar] = useState(false);
     const [servicioSeleccionado, setServicioSeleccionado] = useState({
-        codServ: 0,
-        codCli: 0,
-        nomCli:"",
-        desServ: "",
+        cod_serv: 0,
+        cod_cli: 0,
+        nom_cli:"",
+        des_serv: "",
         fecha: "",
-        codEmp: 0,
-        nomEmp: ""
+        cod_emp: 0,
+        nom_emp: ""
     })
     
     const abrirCerrarModalInsertar = () => {
@@ -43,7 +43,7 @@ const Servicios = () =>{
     }
 
     const peticionGet = async () => {
-        await axios.get(baseUrl)
+        await axios.get(baseUrl+"/listarServicios")
             .then(response => {
                 setServicios(response.data);
             }).catch(error => {
@@ -70,10 +70,10 @@ const Servicios = () =>{
     }
 
     const peticionPost = async () => {
-        delete servicioSeleccionado.codServ;
-        servicioSeleccionado.codEmp=parseInt(servicioSeleccionado.codEmp);
-        servicioSeleccionado.codCli=parseInt(servicioSeleccionado.codCli);
-        await axios.post(baseUrl, servicioSeleccionado)
+        delete servicioSeleccionado.cod_serv;
+        servicioSeleccionado.cod_emp=parseInt(servicioSeleccionado.cod_emp);
+        servicioSeleccionado.cod_cli=parseInt(servicioSeleccionado.cod_cli);
+        await axios.post(baseUrl+"/registrarServicios", servicioSeleccionado)
             .then(response => {
                 setServicios(servicios.concat(response.data));
                 peticionGet();
@@ -84,20 +84,22 @@ const Servicios = () =>{
     }
 
     const peticionPut = async () => {
-        delete servicioSeleccionado.nomCli;
-        delete servicioSeleccionado.nomEmp;
-        servicioSeleccionado.codEmp=parseInt(servicioSeleccionado.codEmp);
-        await axios.put(baseUrl + "/" + servicioSeleccionado.codServ, servicioSeleccionado)
+        delete servicioSeleccionado.nom_cli;
+        delete servicioSeleccionado.nom_emp;
+        servicioSeleccionado.cod_emp=parseInt(servicioSeleccionado.cod_emp);
+        servicioSeleccionado.cod_cli=parseInt(servicioSeleccionado.cod_cli);
+        servicioSeleccionado.cod_serv=parseInt(servicioSeleccionado.cod_serv);
+        await axios.put(baseUrl + "/actualizarServicio", servicioSeleccionado)
             .then(response => {
                 var respuesta = response.data;
                 var dataAuxiliar = servicios;
                 dataAuxiliar.map(servicio => {
-                    if (servicio.codServ === servicioSeleccionado.codServ) {
-                        servicio.codServ = respuesta.codServ;
-                        servicio.codCli = respuesta.codCli;
-                        servicio.desServ = respuesta.desServ;
+                    if (servicio.cod_serv === servicioSeleccionado.cod_serv) {
+                        servicio.cod_serv = respuesta.cod_serv;
+                        servicio.cod_cli = respuesta.cod_cli;
+                        servicio.des_serv = respuesta.des_serv;
                         servicio.fecha = respuesta.fecha;
-                        servicio.codEmp = respuesta.codEmp;
+                        servicio.cod_emp = respuesta.cod_emp;
                     }
                 })
                 peticionGet();
@@ -108,9 +110,15 @@ const Servicios = () =>{
     }
 
     const peticionDelete = async () => {
-        await axios.delete(baseUrl + "/" + servicioSeleccionado.codServ)
-            .then(response => {
-                setServicios(servicios.filter(servicios => servicios.codServ == response.data))
+        await axios.post(baseUrl + "/eliminarServicio",servicioSeleccionado)
+        .then(response => {
+            var respuesta = response.data;
+            var dataAuxiliar = servicios;
+            dataAuxiliar.map(servicio => {
+                if (servicio.cod_serv === servicioSeleccionado.cod_serv) {
+                    servicio.cod_serv = respuesta.cod_serv;
+                }
+            })
                 peticionGet();
                 abrirCerrarModalEliminar();
             }).catch(error => {
@@ -162,11 +170,11 @@ const Servicios = () =>{
                         </thead>
                         <tbody>
                             {servicios.map(servicios => (
-                                <tr key={servicios.codServ}>
-                                    <td>{servicios.nomCli}</td>
-                                    <td>{servicios.desServ}</td>
+                                <tr key={servicios.cod_serv}>
+                                    <td>{servicios.nom_cli}</td>
+                                    <td>{servicios.des_serv}</td>
                                     <td>{servicios.fecha}</td>
-                                    <td>{servicios.nomEmp}</td>
+                                    <td>{servicios.nom_emp}</td>
                                     <td>
                                         <button className="btn btn-primary" onClick={() => seleccionarServicios(servicios, "Editar")}>Actualizar</button>
                                     </td>
@@ -184,26 +192,28 @@ const Servicios = () =>{
                 <ModalBody>
                     <form>
                         <div className="mb-3">
-                        <label htmlFor="codCli" className="form-label">Seleccione Cliente</label>
-                            <select className="form-control" id="codCli" name="codCli" onChange={handleChange}>
+                        <label htmlFor="cod_cli" className="form-label">Seleccione Cliente</label>
+                            <select className="form-control" id="cod_cli" name="cod_cli" onChange={handleChange}>
+                                <option value="0">Seleccione</option>
                                 {clientes.map(clientes => (
-                                    <option key={clientes.codCli} value={clientes.codCli}>{clientes.nomCli}</option>
+                                    <option key={clientes.cod_cli} value={clientes.cod_cli}>{clientes.nom_cli}</option>
                                 ))}
                             </select>
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="desServ" className="form-label">Descripción del Servicio</label>
-                            <textarea class="form-control" id="desServ" name="desServ" onChange={handleChange}></textarea>
+                            <label htmlFor="des_serv" className="form-label">Descripción del Servicio</label>
+                            <textarea class="form-control" id="des_serv" name="des_serv" onChange={handleChange}></textarea>
                         </div>
                         <div className="mb-3">
                             <label htmlFor="fecha" className="form-label">Seleccione Fecha de Atención</label>
                             <input class="form-control" type="date" id="fecha" name="fecha" onChange={handleChange} />
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="codEmp" className="form-label">Asigne Empleado</label>
-                            <select className="form-control" id="codEmp" name="codEmp" onChange={handleChange}>
+                            <label htmlFor="cod_emp" className="form-label">Asigne Empleado</label>
+                            <select className="form-control" id="cod_emp" name="cod_emp" onChange={handleChange}>
+                                <option value="0">Seleccione</option>
                                 {empleados.map(empleados => (
-                                    <option key={empleados.codEmp} value={empleados.codEmp}>{empleados.nomEmp}</option>
+                                    <option key={empleados.cod_emp} value={empleados.cod_emp}>{empleados.nom_emp}</option>
                                 ))}
                             </select>
                         </div>
@@ -219,31 +229,31 @@ const Servicios = () =>{
                 <ModalHeader>Editar Servicio</ModalHeader>
                 <ModalBody>
                     <form>
-                        <div className="mb-3">
-                            <label htmlFor="codServ" className="form-label">Código</label>
-                            <input type="text" className="form-control" id="codServ" name="codServ" readOnly value={servicioSeleccionado && servicioSeleccionado.codServ} />
+                        <div className="mb-3" hidden>
+                            <label htmlFor="cod_serv" className="form-label">Código</label>
+                            <input type="text" className="form-control" id="cod_serv" name="cod_serv" readOnly value={servicioSeleccionado && servicioSeleccionado.cod_serv} />
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="codCli" className="form-label">Cliente</label>
-                            <select className="form-control" id="codCli" name="codCli" onChange={handleChange} disabled value={servicioSeleccionado && servicioSeleccionado.codCli} >
+                            <label htmlFor="cod_cli" className="form-label">Cliente</label>
+                            <select className="form-control" id="cod_cli" name="cod_cli" onChange={handleChange} disabled value={servicioSeleccionado && servicioSeleccionado.cod_cli} >
                                 {clientes.map(clientes => (
-                                    <option key={clientes.codCli} value={clientes.codCli}>{clientes.nomCli}</option>
+                                    <option key={clientes.cod_cli} value={clientes.cod_cli}>{clientes.nom_cli}</option>
                                 ))}
                             </select>
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="desServ" className="form-label">Descripción del Servicio</label>
-                            <textarea type="text" className="form-control" id="desServ" name="desServ" onChange={handleChange} value={servicioSeleccionado && servicioSeleccionado.desServ} />
+                            <label htmlFor="des_serv" className="form-label">Descripción del Servicio</label>
+                            <textarea type="text" className="form-control" id="des_serv" name="des_serv" onChange={handleChange} value={servicioSeleccionado && servicioSeleccionado.des_serv} />
                         </div>
                         <div className="mb-3">
                             <label htmlFor="fecha" className="form-label">Fecha de Atención</label>
                             <input type="date" className="form-control" id="fecha" name="fecha" onChange={handleChange} value={servicioSeleccionado && servicioSeleccionado.fecha} />
                         </div>
                         <div className="mb-3">
-                            <label htmlFor="codEmp" className="form-label">Asigne Empleado</label>
-                            <select className="form-control" id="codEmp" name="codEmp" onChange={handleChange} value={servicioSeleccionado && servicioSeleccionado.codEmp} >
+                            <label htmlFor="cod_emp" className="form-label">Asigne Empleado</label>
+                            <select className="form-control" id="cod_emp" name="cod_emp" onChange={handleChange} value={servicioSeleccionado && servicioSeleccionado.cod_emp} >
                                 {empleados.map(empleados => (
-                                    <option key={empleados.codEmp} value={empleados.codEmp}>{empleados.nomEmp}</option>
+                                    <option key={empleados.cod_emp} value={empleados.cod_emp}>{empleados.nom_emp}</option>
                                 ))}
                             </select>
                         </div>
@@ -257,7 +267,7 @@ const Servicios = () =>{
 
             <Modal isOpen={modalEliminar}>
                 <ModalBody>
-                    Estás seguro que deseas eliminar el servicio: {servicioSeleccionado && servicioSeleccionado.desServ} de {servicioSeleccionado && servicioSeleccionado.nomCli}? 
+                    Estás seguro que deseas eliminar el servicio: {servicioSeleccionado && servicioSeleccionado.des_serv} de {servicioSeleccionado && servicioSeleccionado.nom_cli}? 
                 </ModalBody>
                 <ModalFooter>
                     <button className="btn btn-danger" onClick={() => peticionDelete()}>Sí</button>
