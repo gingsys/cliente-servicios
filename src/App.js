@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react';
-import{
+import React, { useState, useEffect } from 'react';
+import {
   BrowserRouter as Router,
   Switch,
   Route,
@@ -20,15 +20,15 @@ import Clientes from './componentes/clientes';
 import Servicios from './componentes/servicios';
 import Empleados from './componentes/empleados';
 
-function App() {  
+function App() {
 
   const [isOpen, setIsOpen] = useState(false);
 
   const toggle = () => setIsOpen(!isOpen);
-   
+
   return (
-    <Router basename={process.env.PUBLIC_URL}>
-      <div className="App">
+    <div className="App">
+      <Router basename={process.env.PUBLIC_URL}>
         <Navbar color="primary" dark expand="md">
           <NavbarToggler onClick={toggle} />
           <Collapse isOpen={isOpen} navbar>
@@ -41,18 +41,18 @@ function App() {
               </NavItem>
               <NavItem>
                 <NavbarBrand href="/servicios">Servicios</NavbarBrand>
-              </NavItem>                
+              </NavItem>
             </Nav>
           </Collapse>
         </Navbar>
-
+        
         <Switch>
           <Route path="/clientes" component={Clientes}></Route>
           <Route path="/servicios" component={Servicios}></Route>
           <Route path="/empleados" component={Empleados}></Route>
         </Switch>
-      </div>
-    </Router>
+      </Router>
+    </div>
   );
 }
 
