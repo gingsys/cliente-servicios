@@ -27,7 +27,7 @@ function App() {
   const toggle = () => setIsOpen(!isOpen);
    
   return (
-    <Router>
+    <Router basename={process.env.PUBLIC_URL}>
       <div className="App">
         <Navbar color="primary" dark expand="md">
           <NavbarToggler onClick={toggle} />
